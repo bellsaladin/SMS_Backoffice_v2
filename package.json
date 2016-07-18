@@ -1,0 +1,53 @@
+{
+  "name": "keystone-test",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "babel-core": "^6.9.1",
+    "babel-plugin-transform-object-assign": "^6.8.0",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "babelify": "^7.3.0",
+    "blacklist": "^1.1.2",
+    "browserify-middleware": "^7.0.0",
+    "compression": "^1.6.2",
+    "connect-flash": "^0.1.1",
+    "elemental": "^0.5.14",
+    "express": "^4.13.4",
+    "iron-node": "^3.0.5",
+    "jade": "^1.11.0",
+    "keystone": "https://github.com/keystonejs/keystone.git",
+    "lorem-ipsum": "^1.0.3",
+    "model-transform": "^2.0.0",
+    "morgan": "^1.7.0",
+    "random-word": "^1.0.2",
+    "randomkey": "^1.0.0",
+    "react": "^15.1.0",
+    "react-addons-css-transition-group": "^15.1.0",
+    "react-dom": "^15.1.0",
+    "react-domify": "^0.2.6",
+    "store-prototype": "^1.1.1",
+    "xhr": "^2.2.0"
+  },
+  "engines": {
+    "node": ">=0.12.7",
+    "npm": ">=2.14.2"
+  },
+  "scripts": {
+    "dev": "KEYSTONE_DEV=true node keystone.js",
+    "dev:windows": "set KEYSTONE_DEV=true&&node keystone.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "start": "node keystone.js",
+    "start:no-csrf": "KEYSTONE_DEV=true DISABLE_CSRF=true node keystone.js",
+    "start:iron": "KEYSTONE_DEV=true iron-node keystone.js",
+    "test": "npm run lint"
+  },
+  "main": "keystone.js",
+  "devDependencies": {
+    "eslint": "^2.11.1",
+    "eslint-config-keystone": "^2.2.0",
+    "eslint-plugin-react": "^5.1.1"
+  }
+}
