@@ -25,9 +25,9 @@ exports.locals = {
 };
 
 exports.nav = {
-	'Client': ['customers'],
-	'Customer':'customer-activities', 
-	'MessageModel' : 'MessageModel'
+	'Clients': ['customers' , 'customer-activities'],
+	'Modèles de messages' : 'MessageModel',
+	'Administrateurs': ['users'],
 	/*'people': ['users', 'companies', 'contacts'],
 	'content': ['posts', 'post-categories', 'events', 'jobs', 'galleries', 'files'],
 	'test-schemas': ['autocreates', 'field-tests'],*/

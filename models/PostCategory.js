@@ -1,4 +1,4 @@
-var keystone = require('keystone');
+/*var keystone = require('keystone');
 var transform = require('model-transform');
 
 var PostCategory = new keystone.List('PostCategory', {
@@ -14,3 +14,4 @@ PostCategory.relationship({ ref: 'Post', refPath: 'categories' });
 
 transform.toJSON(PostCategory);
 PostCategory.register();
+*/

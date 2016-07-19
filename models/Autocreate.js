@@ -1,4 +1,4 @@
-var keystone = require('keystone');
+/*var keystone = require('keystone');
 var lipsum = require('lorem-ipsum');
 var randomkey = require('randomkey');
 var transform = require('model-transform');
@@ -33,3 +33,4 @@ Autocreate.add({
 transform.toJSON(Autocreate);
 Autocreate.defaultColumns = 'text, number, boolean, datetime';
 Autocreate.register();
+*/

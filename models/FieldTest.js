@@ -1,4 +1,4 @@
-var keystone = require('keystone');
+/*var keystone = require('keystone');
 var transform = require('model-transform');
 var Types = keystone.Field.Types;
 
@@ -60,3 +60,4 @@ FieldTest.add('Needs Configuration', {
 transform.toJSON(FieldTest);
 FieldTest.defaultColumns = 'name, boolean, date, number, password';
 FieldTest.register();
+*/

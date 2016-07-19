@@ -1,4 +1,4 @@
-exports.create = {
+/*exports.create = {
 	User: [
 		{
 			'name.full': 'Admin User',
@@ -104,3 +104,4 @@ exports.create = {
 		},
 	],
 };
+*/

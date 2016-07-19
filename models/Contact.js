@@ -1,4 +1,4 @@
-var keystone = require('keystone');
+/*var keystone = require('keystone');
 var transform = require('model-transform');
 var Types = keystone.Field.Types;
 
@@ -19,3 +19,4 @@ Contact.add({
 transform.toJSON(Contact);
 Contact.defaultColumns = 'name, email, favouriteFlavour, birthday, homepage';
 Contact.register();
+*/

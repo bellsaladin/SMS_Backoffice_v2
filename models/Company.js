@@ -1,4 +1,4 @@
-var keystone = require('keystone');
+/*var keystone = require('keystone');
 var transform = require('model-transform');
 var Types = keystone.Field.Types;
 
@@ -18,3 +18,4 @@ Company.relationship({ ref: 'User', path: 'users', refPath: 'company' });
 transform.toJSON(Company);
 Company.defaultColumns = 'name, website, github, twitter';
 Company.register();
+*/

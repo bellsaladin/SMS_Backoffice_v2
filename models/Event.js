@@ -1,4 +1,4 @@
-var keystone = require('keystone');
+/*var keystone = require('keystone');
 var transform = require('model-transform');
 var Types = keystone.Field.Types;
 
@@ -18,7 +18,9 @@ Event.add({
 Event.add('Contact Information', {
 	phone: { type: String, width: 'short' },
 	website: { type: Types.Url, collapse: true },
-	location: { type: Types.Location, collapse: true, initial: false, /*required: ['suburb']*/ },
+	location: { type: Types.Location, collapse: true, initial: false,
+	//required: ['suburb']
+},
 	bookingUrl: { type: Types.Url, collapse: true },
 });
 
@@ -35,3 +37,4 @@ Event.add('Description', {
 transform.toJSON(Event);
 Event.defaultColumns = 'name, eventType|15%, eventState|15%, startDate|15%';
 Event.register();
+*/

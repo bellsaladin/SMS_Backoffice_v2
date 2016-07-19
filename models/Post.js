@@ -1,4 +1,4 @@
-var keystone = require('keystone');
+/*var keystone = require('keystone');
 var transform = require('model-transform');
 var Types = keystone.Field.Types;
 
@@ -26,3 +26,4 @@ Post.schema.virtual('content.full').get(() => {
 transform.toJSON(Post);
 Post.defaultColumns = 'name, state|20%, author|20%, categories|20%, publishedDate|20%';
 Post.register();
+*/

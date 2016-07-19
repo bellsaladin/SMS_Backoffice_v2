@@ -1,4 +1,4 @@
-exports.create = {
+/*exports.create = {
 	PostCategory: [
 		{ name: 'News' },
 		{ name: 'Ideas' },
@@ -7,3 +7,4 @@ exports.create = {
 		{ name: 'Other' },
 	],
 };
+*/

@@ -1,4 +1,4 @@
-var keystone = require('keystone');
+/*var keystone = require('keystone');
 var transform = require('model-transform');
 var Types = keystone.Field.Types;
 
@@ -12,3 +12,4 @@ File.add({
 transform.toJSON(File);
 File.defaultColumns = 'name, file';
 File.register();
+*/
