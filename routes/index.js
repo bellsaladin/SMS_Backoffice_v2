@@ -1,5 +1,6 @@
 var babelify = require('babelify');
 var browserify = require('browserify-middleware');
+var _ = require('underscore');
 var keystone = require('keystone');
 
 var clientConfig = {
@@ -41,6 +42,47 @@ exports = module.exports = function (app) {
 		});
 	});
 
+	app.get('/sms-app/logSmsActivity', function(req, res){
+		var p_username = req.query.username;
+		var p_nbrSmsSent = req.query.varnbrsms;
+		var p_dateLastOperation = req.query.vardateop;
+
+    var msg  = "";
+    var code = 0;
+
+		keystone.mongoose.model('Customer').findOne({ 'username': p_username },
+																							 function (err, customer) {
+			if (err) return handleError(err);
+			console.log('%s', customer) // Space Ghost is a talk show host.
+			if(!customer){
+				code = 0;
+				msg = "Le nom d'utilisateur fourni ne correspond à aucun client !";
+			}else{
+
+				//keystone.mongoose.model('CustomerActivity').save()
+				var CustomerActivityList = keystone.list('CustomerActivity');
+				var customerActivity = new CustomerActivityList.model();
+
+				customerActivity.customer        = customer;
+				customerActivity.operationDate   = p_dateLastOperation;
+				customerActivity.numberOfSentSMS = p_nbrSmsSent;
+				customerActivity.save(function (err) {
+					if (err) {
+						console.error('Error saving customer activity to the database');
+						console.error(err);
+					} else {
+						console.log('Saved \'Customer activity\' to the database');
+					}
+				});
+				code = 1;
+				msg = 'L\'activité du client a été enregistrée';
+			}
+
+			res.send(code + '|||' + msg);
+			return;
+		}); // END : FIND CUSTOMER
+	});
+
 	app.get('/sms-app/verifyAccess', function(req, res){
 		var p_username = req.query.username;
 		var p_password = req.query.pw;
@@ -51,91 +93,126 @@ exports = module.exports = function (app) {
 
     var msg = "";
     var code = 0;
-    var APP_VERSION = '1.2'; // gathered from the database
+    var APP_VERSION = ''; // gathered from the database
+		var CONTACT_PHONE = '';
+		var CONTACT_EMAIL = '';
     var soldeSMS = 0;
 
-		keystone.mongoose.model('Customer').findOne({ 'username': p_username, 'password' : p_password },
+		var MSG_ERROR_BAD_CREDENTIALS = '';
+		var MSG_ERROR_LOCKED_ACCOUNT = '';
+		var MSG_ERROR_OLD_VERSION = '';
+		var MSG_ERROR_UNAUTHORIZED_MACHINE = '';
+		var MSG_INFO_DEMO_MODE = '';
+
+		keystone.mongoose.model('MessageModel').find({},
 																							 /*'username password name macAddress soldeSMS isBloqued blockReason',*/
-																							 function (err, customer) {
-			if (err) return handleError(err);
-			console.log('%s', customer) // Space Ghost is a talk show host.
-			if(!customer){
-				code = 0;
-				msg = "Le nom d'utilisateur ou le mot de passe est incorrect !";
-			}
-			else if(APP_VERSION != p_version ){
-	      code = -3;
-	      msg = "Votre application n'est pas à jour, veuillez telecharger la nouvelle version via le lien suivant : http://sms-app.sgimaroc.com/download";
-	    }
-			else if(customer.macAddress && p_macAddress != customer.macAddress){
-				code = -2;
-				msg = "La machine sur laquelle l'application est executée n'est pas autorisée.";
-			}else if(customer.isBlocked){
-				code = -1;
-				msg = "Le compte utilisé est bloqué. Veuillez nous contacter sur le numéro : 00000000000.";
-			}else if(customer.demoUseOnly){
-				code = 2;
-	      msg = "L'application fonctionnera en mode de démonstration.";
-				soldeSMS = customer.soldeSMS;
-			}else if(!customer.isBlocked){
-				code = 1;
-				msg = 'Connexion autorisée';
-				soldeSMS = customer.soldeSMS;
-				// if the mac address is not yet captured
-				if(!customer.macAddress){
-						customer.macAddress = p_macAddress;
-						customer.save(function (err) {
-					    if (err) return handleError(err);
-					    //res.send(customer);
-							console.log('Customer saved ! %s', customer)
-					  });
+																							 function (err, messagesModels) {
+
+			 // check if required data was found
+ 			if(!messagesModels
+ 				|| !(_.find(messagesModels, function(obj){ return obj.name == 'ERROR_BAD_CREDENTIALS'; }))
+ 				|| !(_.find(messagesModels, function(obj){ return obj.name == 'ERROR_LOCKED_ACCOUNT'; }))
+				|| !(_.find(messagesModels, function(obj){ return obj.name == 'ERROR_OLD_VERSION'; }))
+				|| !(_.find(messagesModels, function(obj){ return obj.name == 'ERROR_UNAUTHORIZED_MACHINE'; }))
+ 				|| !(_.find(messagesModels, function(obj){ return obj.name == 'INFO_DEMO_MODE'; }))
+ 			){
+ 				code = -99;
+ 				msg = "Erreur : Modèles de messages non trouvés. \n "
+ 						+ "Verify also that all the required message ('MSG_ERROR_BAD_CREDENTIALS', 'ERROR_LOCKED_ACCOUNT'...) exist ";
+ 				res.send(code + '|||' + msg);
+ 				return;
+ 			}else{
+ 				MSG_ERROR_BAD_CREDENTIALS      = _.find(messagesModels, function(obj){ return obj.name == 'ERROR_BAD_CREDENTIALS'; }).content;
+ 				MSG_ERROR_LOCKED_ACCOUNT       = _.find(messagesModels, function(obj){ return obj.name == 'ERROR_LOCKED_ACCOUNT'; }).content;
+ 				MSG_ERROR_OLD_VERSION 			   = _.find(messagesModels, function(obj){ return obj.name == 'ERROR_OLD_VERSION'; }).content;
+				MSG_ERROR_UNAUTHORIZED_MACHINE = _.find(messagesModels, function(obj){ return obj.name == 'ERROR_UNAUTHORIZED_MACHINE'; }).content;
+				MSG_INFO_DEMO_MODE 						 = _.find(messagesModels, function(obj){ return obj.name == 'INFO_DEMO_MODE'; }).content;
+ 			}
+
+
+			keystone.mongoose.model('ConfigParameter').find({},
+																								 /*'username password name macAddress soldeSMS isBloqued blockReason',*/
+																								 function (err, configParameters) {
+				// check if required data was found
+				if(!configParameters
+					|| !(_.find(configParameters, function(obj){ return obj.name == 'APP_VERSION'; }))
+					|| !(_.find(configParameters, function(obj){ return obj.name == 'CONTACT_PHONE'; }))
+					|| !(_.find(configParameters, function(obj){ return obj.name == 'CONTACT_EMAIL'; }))
+				){
+					code = -99;
+					msg = "Erreur : Paramètre de configuration non trouvés. \n "
+						  + "Verify also that all the required config parameters ('APP_VERSION', 'CONTACT_EMAIL' and 'CONTACT_PHONE') exist ";
+					res.send(code + '|||' + msg);
+					return;
+				}else{
+					APP_VERSION   = _.find(configParameters, function(obj){ return obj.name == 'APP_VERSION'; }).value;
+					CONTACT_PHONE = _.find(configParameters, function(obj){ return obj.name == 'CONTACT_PHONE'; }).value;
+					CONTACT_EMAIL = _.find(configParameters, function(obj){ return obj.name == 'CONTACT_EMAIL'; }).value;
 				}
-			}
-			//keystone.mongoose.model('CustomerActivity').save()
-			var CustomerActivityList = keystone.list('CustomerActivity');
-			var customerActivity = new CustomerActivityList.model();
 
-			customerActivity.customer        = customer;
-			customerActivity.operationDate   = p_dateLastOperation;
-			customerActivity.numberOfSentSMS = p_nbrSmsSent;
-			customerActivity.save(function (err) {
-				if (err) {
-					console.error('Error adding customer activity to the database');
-					console.error(err);
-				} else {
-					console.log('Saved \'Customer activity\' to the database');
-				}
-			});
+				keystone.mongoose.model('Customer').findOne({ 'username': p_username, 'password' : p_password },
+																									 /*'username password name macAddress soldeSMS isBloqued blockReason',*/
+																									 function (err, customer) {
+					if (err) return handleError(err);
+					console.log('%s', customer) // Space Ghost is a talk show host.
+					if(!customer){
+						code = 0;
+						msg = MSG_ERROR_BAD_CREDENTIALS;
+					}
+					else if(APP_VERSION != p_version ){
+			      code = -3;
+			      msg = MSG_ERROR_OLD_VERSION;
+			    }
+					else if(customer.macAddress && p_macAddress != customer.macAddress){
+						code = -2;
+						msg = MSG_ERROR_UNAUTHORIZED_MACHINE;
+					}else if(customer.isBlocked){
+						code = -1;
+						msg = MSG_ERROR_LOCKED_ACCOUNT + ' Raison du blocage : ' + customer.blockReason;
+					}else if(customer.demoUseOnly){
+						code = 2;
+			      msg = MSG_INFO_DEMO_MODE;
+						soldeSMS = customer.soldeSMS;
+					}else if(!customer.isBlocked){
+						code = 1;
+						msg = 'Connexion autorisée';
+						soldeSMS = customer.soldeSMS;
+						// if the mac address is not yet captured
+						if(!customer.macAddress){
+								customer.macAddress = p_macAddress;
+								customer.save(function (err) {
+							    if (err) return handleError(err);
+							    //res.send(customer);
+									console.log('Customer data (\' Mac Address\') updated ! %s', customer)
+							  });
+						}
+					}
+					//keystone.mongoose.model('CustomerActivity').save()
+					var CustomerActivityList = keystone.list('CustomerActivity');
+					var customerActivity = new CustomerActivityList.model();
 
-			res.send(code + '|||' + msg + '|||' + soldeSMS);
-		});
+					customerActivity.customer        = customer;
+					customerActivity.operationDate   = p_dateLastOperation;
+					customerActivity.numberOfSentSMS = p_nbrSmsSent;
+					customerActivity.save(function (err) {
+						if (err) {
+							console.error('Error adding customer activity to the database');
+							console.error(err);
+						} else {
+							console.log('Saved \'Customer activity\' to the database');
+						}
+					});
+					// PROCESS AND REPLACE ALL PLACEHOLDERS FOR
+					_.each(configParameters, function(parameter) {
+    					msg = msg.replace('|'+parameter.name+'|', parameter.value);
+					});
 
-    /*if(APP_VERSION != req.query.version ){
-      code = -3;
-      msg = "Votre application n'est pas à jour, veuillez telecharger la nouvelle version via le lien suivant : http://sms-app.sgimaroc.com/login";
-    }
-    else if(req.query.username == 'administrateur' && req.query.pw == '123456' && authorizedMac()){
-      //code = 1;
-      msg = 'Connexion autorisée';
-    }
-    else if(req.query.username == 'administrateur' && req.query.pw == '123456' && !authorizedMac()){
-      code = -2;
-      msg = "La machine sur laquelle l'application est executée n'est pas autorisée.";
-    }
-    else if(req.query.username == 'administrateur' && req.query.pw == '123456' && bloquedAccess()){
-      code = -1;
-      msg = "Le compte utilisé est bloqué. Veuillez nous contacter sur le numéro : 00000000000.";
-    }
-    else if(req.query.username == 'administrateur' && req.query.pw == '123456' && demoAccess()){
-      code = 2;
-      msg = "L'application fonctionnera en mode de démonstration.";
-    }
-    else{
-      code = 0;
-      msg = "Le nom d'utilisateur ou le mot de passe est incorrect !";
-    }
-    soldeSMS = 5000;
-    res.send(code + '|||' + msg + '|||' + soldeSMS);*/
+					res.send(code + '|||' + msg + '|||' + soldeSMS);
+					return;
+				}); // END : FIND CUSTOMER
+			}); // END : FIND CONFIG PARAMETERS
+		}); // END : FIND MESSAGES MODELS
+
 	});
 
 	// Views

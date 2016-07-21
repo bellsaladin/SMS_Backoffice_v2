@@ -31,7 +31,7 @@ var CustomerActivity = new keystone.List('CustomerActivity',
 CustomerActivity.add({
 	name: { type: String, required: false, index: true , hidden:true},
   numberOfSentSMS: { type: Number, label: 'Nbr SMS Envoyés'},
-  operationDate: { type: String, label: 'Date opération'},
+  operationDate: { type: Types.Datetime, label: 'Date opération', format : 'DD-MM-YYYY hh:mm:ss'},
   customer: { type: Types.Relationship, ref: 'Customer'}
 });
 

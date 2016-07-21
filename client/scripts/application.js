@@ -10,6 +10,9 @@ const App = React.createClass({
 		window.location.href = '/keystone';
 	},
 	render () {
+		return(<div id="application_home"></div>);
+	}
+	/*render () {
 		return (
 			<div style={{ paddingLeft: 20, paddingRight: 20 }}>
 				<div style={styles.box}>
@@ -30,7 +33,7 @@ const App = React.createClass({
 				</div>
 			</div>
 		);
-	},
+	},*/
 });
 
 const styles = {
