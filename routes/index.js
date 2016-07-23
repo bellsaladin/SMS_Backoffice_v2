@@ -65,7 +65,7 @@ exports = module.exports = function (app) {
 
 				customerActivity.customer        = customer;
 				customerActivity.operationDate   = p_dateLastOperation;
-				customerActivity.numberOfSentSMS = p_nbrSmsSent;
+				customerActivity.numberOfSentSMS = (!p_nbrSmsSent)?p_nbrSmsSent:0;
 				customerActivity.save(function (err) {
 					if (err) {
 						console.error('Error saving customer activity to the database');
@@ -118,7 +118,7 @@ exports = module.exports = function (app) {
  			){
  				code = -99;
  				msg = "Erreur : Modèles de messages non trouvés. \n "
- 						+ "Verify also that all the required message ('MSG_ERROR_BAD_CREDENTIALS', 'ERROR_LOCKED_ACCOUNT'...) exist ";
+ 						+ "Verify also that all the required message ('ERROR_BAD_CREDENTIALS', 'ERROR_LOCKED_ACCOUNT'...) exist ";
  				res.send(code + '|||' + msg);
  				return;
  			}else{

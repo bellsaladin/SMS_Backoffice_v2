@@ -23,10 +23,11 @@ var transform = require('model-transform');
 var Types = keystone.Field.Types;
 
 var CustomerActivity = new keystone.List('CustomerActivity',
+                                          {defaultSort: '-operationDate'},
                                           {'label' : 'Activité',
                                            'noedit' : true,
                                            'nocreate' : true,
-                                           'nodelete' : true});
+                                           'nodelete' : true, });
 
 CustomerActivity.add({
 	name: { type: String, required: false, index: true , hidden:true},
@@ -36,5 +37,5 @@ CustomerActivity.add({
 });
 
 transform.toJSON(CustomerActivity);
-CustomerActivity.defaultColumns = 'name, operationDate, numberOfSentSMS, customer';
+CustomerActivity.defaultColumns = 'name|0%, operationDate, customer, numberOfSentSMS';
 CustomerActivity.register();
